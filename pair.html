@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BLAZE</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Exo+2:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #00ff88;
+      --primary-dark: #00cc6d;
+      --secondary: #ff0080;
+      --secondary-dark: #cc0066;
+      --accent: #00ffff;
+      --accent-dark: #00cccc;
+      --background: #0a0a0a;
+      --card-bg: rgba(26, 26, 46, 0.95);
+      --text: #ffffff;
+      --text-muted: #a1a1d3;
+      --input-bg: rgba(255, 255, 255, 0.08);
+      --input-text: #ffffff;
+      --success: #00ff9d;
+      --error: #ff2a6d;
+      --warning: #ffcc00;
+      --border-color: rgba(0, 255, 255, 0.4);
+      --glass-blur: 20px;
+      --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      --glow-intensity: 8px;
+    }
+
+    [data-theme="light"] {
+      --primary: #00cc6d;
+      --primary-dark: #00994f;
+      --secondary: #cc0066;
+      --secondary-dark: #99004d;
+      --accent: #00cccc;
+      --accent-dark: #009999;
+      --background: #f0f2ff;
+      --card-bg: rgba(255, 255, 255, 0.98);
+      --text: #1a1a40;
+      --text-muted: #4a4a8a;
+      --input-bg: rgba(26, 26, 64, 0.08);
+      --input-text: #1a1a40;
+      --border-color: rgba(0, 136, 167, 0.4);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Rajdhani', sans-serif;
+      background: var(--background);
+      color: var(--text);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(0, 255, 136, 0.15) 0%, transparent 35%),
+        radial-gradient(circle at 90% 80%, rgba(255, 0, 128, 0.15) 0%, transparent 35%),
+        radial-gradient(circle at 50% 50%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+        linear-gradient(to bottom right, #0a0a0a, #141428);
+      background-attachment: fixed;
+      transition: var(--transition);
+      overflow-x: hidden;
+    }
+
+    #particles-js {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    .cyberpunk-grid {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      background-image: 
+        linear-gradient(rgba(0, 255, 136, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 136, 0.1) 1px, transparent 1px);
+      background-size: 30px 30px;
+      z-index: -1;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .scan-line {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--primary), transparent);
+      box-shadow: 0 0 15px var(--primary);
+      z-index: 999;
+      animation: scan 4s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes scan {
+      0% { top: 0%; }
+      100% { top: 100%; }
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      width: 100%;
+      max-width: 560px;
+      padding: 2rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .logo-container {
+      position: relative;
+      margin-bottom: 2.5rem;
+      z-index: 1;
+    }
+
+    .logo {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--primary);
+      box-shadow: 
+        0 0 20px rgba(0, 255, 136, 0.6), 
+        0 0 40px rgba(0, 255, 136, 0.3),
+        0 0 80px rgba(0, 255, 136, 0.2);
+      transition: var(--transition);
+      filter: drop-shadow(0 5px 15px rgba(0, 255, 136, 0.5));
+      position: relative;
+      z-index: 2;
+    }
+
+    .logo-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 255, 136, 0.4) 0%, transparent 70%);
+      z-index: 1;
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+
+    .hologram-effect {
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      right: -10px;
+      bottom: -10px;
+      background: radial-gradient(circle at center, transparent 30%, rgba(0, 255, 136, 0.2) 70%);
+      border-radius: 50%;
+      filter: blur(15px);
+      z-index: 0;
+      animation: hologram 6s ease-in-out infinite;
+    }
+
+    @keyframes hologram {
+      0%, 100% { opacity: 0.5; transform: translateY(0) scale(1); }
+      50% { opacity: 0.8; transform: translateY(-10px) scale(1.05); }
+    }
+
+    .card {
+      width: 100%;
+      padding: 2.8rem;
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: 
+        0 15px 35px rgba(0, 0, 0, 0.5),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid var(--border-color);
+      margin-bottom: 2rem;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(0, 255, 136, 0.08) 0%, transparent 70%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border: 1px solid transparent;
+      background: linear-gradient(45deg, transparent 40%, rgba(0, 255, 136, 0.3), rgba(255, 0, 128, 0.3), transparent 60%) border-box;
+      mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      border-radius: 20px;
+      pointer-events: none;
+      animation: border-glow 3s linear infinite;
+    }
+
+    @keyframes border-glow {
+      0% { background-position: -100% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    h1 {
+      margin-bottom: 1.2rem;
+      background: linear-gradient(90deg, var(--primary), var(--accent), var(--secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-weight: 800;
+      font-size: 2.4rem;
+      letter-spacing: 1px;
+      font-family: 'Orbitron', sans-serif;
+      text-shadow: 0 2px 10px rgba(0, 255, 136, 0.3);
+      text-transform: uppercase;
+      position: relative;
+      display: inline-block;
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--accent), var(--secondary));
+      border-radius: 3px;
+      transform: scaleX(0);
+      transform-origin: left;
+      animation: title-underline 2s 0.5s forwards;
+    }
+
+    @keyframes title-underline {
+      to { transform: scaleX(1); }
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      margin-bottom: 2.5rem;
+      font-weight: 400;
+      font-size: 1.05rem;
+      line-height: 1.6;
+      max-width: 90%;
+      margin-left: auto;
+      margin-right: auto;
+      font-family: 'Exo 2', sans-serif;
+    }
+
+    .input-group {
+      position: relative;
+      margin: 2rem 0;
+    }
+
+    .country-select {
+      width: 100%;
+      padding: 1.2rem 1.5rem;
+      background: var(--input-bg);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      color: var(--input-text);
+      font-family: 'Exo 2', sans-serif;
+      font-size: 1rem;
+      font-weight: 500;
+      appearance: none;
+      transition: var(--transition);
+      outline: none;
+      cursor: pointer;
+      margin-bottom: 1rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .country-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(0, 255, 136, 0.3);
+    }
+
+    .select-arrow {
+      position: absolute;
+      top: 50%;
+      right: 1.5rem;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--text-muted);
+      transition: var(--transition);
+      z-index: 3;
+    }
+
+    .country-select:focus + .select-arrow {
+      color: var(--primary);
+      transform: translateY(-50%) rotate(180deg);
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 1.2rem 1.5rem;
+      background: var(--input-bg);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      color: var(--input-text);
+      font-family: 'Exo 2', sans-serif;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: var(--transition);
+      outline: none;
+      position: relative;
+      z-index: 2;
+    }
+
+    .input-field:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(0, 255, 136, 0.3);
+    }
+
+    .input-field::placeholder {
+      color: var(--text-muted);
+      opacity: 0.7;
+      font-weight: 400;
+    }
+
+    .cyber-input-decoration {
+      position: absolute;
+      bottom: -5px;
+      left: 10%;
+      width: 80%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--primary), transparent);
+      opacity: 0;
+      transition: var(--transition);
+      z-index: 1;
+    }
+
+    .input-field:focus ~ .cyber-input-decoration {
+      opacity: 1;
+      bottom: -8px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 1.3rem;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      margin-top: 1.8rem;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      box-shadow: 0 8px 25px rgba(0, 255, 136, 0.5);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 255, 136, 0.6);
+      letter-spacing: 2px;
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    .submit-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: 0.5s;
+      z-index: -1;
+    }
+
+    .submit-btn:hover::before {
+      left: 100%;
+    }
+
+    .result-container {
+      margin-top: 2rem;
+      padding: 1.8rem;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      transition: var(--transition);
+      opacity: 0;
+      height: 0;
+      overflow: hidden;
+      transform: scale(0.95);
+      line-height: 1.6;
+      position: relative;
+      z-index: 2;
+    }
+
+    .result-container.show {
+      opacity: 1;
+      height: auto;
+      transform: scale(1);
+      background: rgba(0, 255, 136, 0.1);
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+    }
+
+    .result-container.success {
+      color: var(--success);
+    }
+
+    .result-container.error {
+      color: var(--error);
+    }
+
+    .result-container.warning {
+      color: var(--warning);
+    }
+
+    .code-display {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: 4px;
+      margin: 1.2rem 0;
+      background: linear-gradient(90deg, var(--primary), var(--accent), var(--secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-family: 'Orbitron', sans-serif;
+      text-shadow: 0 2px 10px rgba(0, 255, 136, 0.3);
+      padding: 0.8rem 1.5rem;
+      display: inline-block;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .code-display::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      animation: code-shine 3s infinite;
+    }
+
+    @keyframes code-shine {
+      0% { left: -100%; }
+      20% { left: 100%; }
+      100% { left: 100%; }
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 2.5rem;
+      justify-content: center;
+    }
+
+    .action-btn {
+      padding: 1rem 2rem;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .copy-btn {
+      background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+      color: white;
+    }
+
+    .copy-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(255, 0, 128, 0.4);
+    }
+
+    .copy-btn.copied {
+      background: var(--success);
+      transform: scale(0.98);
+    }
+
+    .whatsapp-btn {
+      background: linear-gradient(135deg, #25D366, #128C7E);
+      color: white;
+    }
+
+    .whatsapp-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(37, 211, 102, 0.4);
+    }
+
+    .action-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: 0.5s;
+      z-index: -1;
+      transform: translateX(-100%);
+    }
+
+    .action-btn:hover::before {
+      transform: translateX(100%);
+    }
+
+    .loader {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 25px;
+      right: 25px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 100;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      transition: var(--transition);
+    }
+
+    .theme-toggle:hover {
+      transform: rotate(30deg) scale(1.1);
+      box-shadow: 0 8px 25px rgba(0, 255, 136, 0.5);
+    }
+
+    .theme-toggle i {
+      font-size: 1.4rem;
+      color: var(--primary);
+      transition: var(--transition);
+    }
+
+    .cyber-corner {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--primary);
+      opacity: 0.7;
+    }
+
+    .corner-tl {
+      top: 10px;
+      left: 10px;
+      border-right: none;
+      border-bottom: none;
+    }
+
+    .corner-tr {
+      top: 10px;
+      right: 10px;
+      border-left: none;
+      border-bottom: none;
+    }
+
+    .corner-bl {
+      bottom: 10px;
+      left: 10px;
+      border-right: none;
+      border-top: none;
+    }
+
+    .corner-br {
+      bottom: 10px;
+      right: 10px;
+      border-left: none;
+      border-top: none;
+    }
+
+    /* Advanced Background Elements */
+    .floating-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .floating-shape {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(40px);
+      opacity: 0.2;
+      animation: float 20s infinite linear;
+    }
+
+    .shape-1 {
+      width: 300px;
+      height: 300px;
+      background: var(--primary);
+      top: 10%;
+      left: 5%;
+      animation-delay: 0s;
+    }
+
+    .shape-2 {
+      width: 200px;
+      height: 200px;
+      background: var(--secondary);
+      top: 60%;
+      right: 10%;
+      animation-delay: -5s;
+      animation-duration: 25s;
+    }
+
+    .shape-3 {
+      width: 250px;
+      height: 250px;
+      background: var(--accent);
+      bottom: 20%;
+      left: 20%;
+      animation-delay: -10s;
+      animation-duration: 30s;
+    }
+
+    .binary-rain {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.1;
+    }
+
+    .binary-digit {
+      position: absolute;
+      color: var(--primary);
+      font-family: 'Orbitron', monospace;
+      font-size: 14px;
+      opacity: 0;
+      animation: binary-fall 10s linear infinite;
+    }
+
+    @keyframes binary-fall {
+      0% {
+        transform: translateY(-100px);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh);
+        opacity: 0;
+      }
+    }
+
+    .neon-pulse {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 50%, transparent 10%, rgba(0, 255, 136, 0.05) 20%, transparent 30%);
+      animation: neon-pulse 8s ease-in-out infinite;
+    }
+
+    @keyframes neon-pulse {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.1); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes pulse-glow {
+      0% { opacity: 0.6; transform: translate(-50%, -50%) scale(0.95); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+      100% { opacity: 0.6; transform: translate(-50%, -50%) scale(0.95); }
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0px) rotate(0deg); }
+      33% { transform: translateY(-30px) rotate(120deg); }
+      66% { transform: translateY(20px) rotate(240deg); }
+      100% { transform: translateY(0px) rotate(360deg); }
+    }
+
+    .container > * {
+      animation: fadeIn 0.8s cubic-bezier(0.39, 0.575, 0.565, 1) both;
+    }
+
+    .container > *:nth-child(1) { animation-delay: 0.1s; }
+    .container > *:nth-child(2) { animation-delay: 0.2s; }
+    .container > *:nth-child(3) { animation-delay: 0.3s; }
+    .input-group { animation-delay: 0.4s !important; }
+    .submit-btn { animation-delay: 0.5s !important; }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .container {
+        padding: 1.5rem;
+      }
+      
+      .card {
+        padding: 2rem;
+        border-radius: 16px;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+      }
+      
+      .action-btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .theme-toggle {
+        width: 50px;
+        height: 50px;
+        top: 15px;
+        right: 15px;
+      }
+      
+      .code-display {
+        font-size: 1.6rem;
+        letter-spacing: 3px;
+      }
+    }
+    .searchable-select {
+  position: relative;
+  width: 100%;
+  z-index: 10;
+}
+
+
+.select-header {
+  width: 100%;
+  padding: 1.2rem 1.5rem;
+  background: var(--input-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  color: var(--input-text);
+  font-family: 'Exo 2', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 11;
+}
+
+.select-header.active {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(0, 255, 136, 0.3);
+  border-radius: 12px 12px 0 0;
+}
+
+.select-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: var(--card-bg);
+  border: 2px solid var(--primary);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  max-height: 0;
+  overflow: hidden;
+  transition: var(--transition);
+  backdrop-filter: blur(var(--glass-blur));
+  z-index: 12;
+}
+
+.select-options.active {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.search-container {
+  position: relative;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.8rem 2.5rem 0.8rem 1rem;
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--input-text);
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.9rem;
+}
+
+.search-icon {
+  position: absolute;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.options-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.country-option {
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  transition: var(--transition);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  justify-content: between;
+  align-items: center;
+}
+
+.country-option:hover {
+  background: rgba(0, 255, 136, 0.1);
+}
+
+.country-option:last-child {
+  border-bottom: none;
+}
+
+.country-name {
+  flex: 1;
+  font-weight: 500;
+}
+
+.country-code {
+  color: var(--primary);
+  font-weight: 600;
+  font-family: 'Orbitron', sans-serif;
+  margin-left: 1rem;
+}
+
+/* Scrollbar styling */
+.options-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.options-list::-webkit-scrollbar-track {
+  background: var(--input-bg);
+}
+
+.options-list::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 3px;
+}
+
+.options-list::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
+}
+
+.country-flag {
+  margin-right: 0.8rem;
+  font-size: 1.2rem;
+}
+
+.select-header .country-flag,
+.select-header .country-code {
+  margin-right: 0.5rem;
+}
+
+.select-header .country-name {
+  flex: 1;
+  text-align: left;
+}
+  </style>
+</head>
+
+<body data-theme="dark">
+  <div id="particles-js"></div>
+  <div class="cyberpunk-grid"></div>
+  <div class="scan-line"></div>
+  
+  <div class="floating-shapes">
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+    <div class="floating-shape shape-3"></div>
+  </div>
+  
+  <div class="binary-rain" id="binary-rain"></div>
+  <div class="neon-pulse"></div>
+  
+  <div class="container">
+    <div class="logo-container">
+        <h1>🧊 BLAZE🧊</h1>
+      <img src="https://files.catbox.moe/3c2kls.jpg" alt="sir T20-CLASSIC" class="logo">
+      <div class="logo-glow"></div>
+      <div class="hologram-effect"></div>
+    </div>
+    
+    <div class="card">
+      <div class="cyber-corner corner-tl"></div>
+      <div class="cyber-corner corner-tr"></div>
+      <div class="cyber-corner corner-bl"></div>
+      <div class="cyber-corner corner-br"></div>
+      
+      <h1>PAIRING AREA</h1>
+      <p class="subtitle">Select your country and enter your WhatsApp number to generate your secure pairing code</p>
+      
+   <div class="input-group">
+  <div class="searchable-select">
+    <div class="select-header" id="select-header">
+      <span id="selected-country">Select Country</span>
+      <i class="fas fa-chevron-down select-arrow"></i>
+    </div>
+    <div class="select-options" id="select-options">
+      <div class="search-container">
+        <input type="text" id="country-search" class="search-input" placeholder="Search by country or code...">
+        <i class="fas fa-search search-icon"></i>
+      </div>
+      <div class="options-list" id="options-list">
+        </div>
+    </div>
+  </div>
+  <input type="hidden" id="country-code" name="country-code">
+</div>
+    
+      
+      <div class="input-group">
+        <input id="phone-number" type="text" class="input-field" placeholder="Phone number (without country code)">
+        <div class="cyber-input-decoration"></div>
+      </div>
+      
+      <button id="submit" class="submit-btn">
+        <span id="btn-text">Generate Pair Code</span>
+        <span id="loading-spinner" style="display: none;"><i class="fas fa-spinner fa-spin"></i></span>
+      </button>
+      
+      <div id="pair" class="result-container"></div>
+      
+      <div class="action-buttons" id="action-buttons" style="display: none;">
+        <button id="copy-code" class="action-btn copy-btn">
+          <i class="far fa-copy"></i> Copy Code
+        </button>
+        <button id="whatsapp-btn" class="action-btn whatsapp-btn">
+          <i class="fab fa-whatsapp"></i> Open WhatsApp
+        </button>
+      </div>
+  <h1>🧊 BLAZE 🧊</h1>  </div>
+  </div>
+
+  <button class="theme-toggle" id="theme-toggle">
+    <i class="fas fa-moon"></i>
+  </button>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0-alpha.1/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <script>
+      
+      
+      // Country data - you can expand this list
+const countries = [
+  { name: "Afghanistan", code: "93", flag: "🇦🇫" },
+  { name: "Albania", code: "355", flag: "🇦🇱" },
+  { name: "Algeria", code: "213", flag: "🇩🇿" },
+  { name: "Andorra", code: "376", flag: "🇦🇩" },
+  { name: "Angola", code: "244", flag: "🇦🇴" },
+  { name: "Antigua and Barbuda", code: "1-268", flag: "🇦🇬" },
+  { name: "Argentina", code: "54", flag: "🇦🇷" },
+  { name: "Armenia", code: "374", flag: "🇦🇲" },
+  { name: "Australia", code: "61", flag: "🇦🇺" },
+  { name: "Austria", code: "43", flag: "🇦🇹" },
+  { name: "Azerbaijan", code: "994", flag: "🇦🇿" },
+  { name: "Bahamas", code: "1-242", flag: "🇧🇸" },
+  { name: "Bahrain", code: "973", flag: "🇧🇭" },
+  { name: "Bangladesh", code: "880", flag: "🇧🇩" },
+  { name: "Barbados", code: "1-246", flag: "🇧🇧" },
+  { name: "Belarus", code: "375", flag: "🇧🇾" },
+  { name: "Belgium", code: "32", flag: "🇧🇪" },
+  { name: "Belize", code: "501", flag: "🇧🇿" },
+  { name: "Benin", code: "229", flag: "🇧🇯" },
+  { name: "Bhutan", code: "975", flag: "🇧🇹" },
+  { name: "Bolivia", code: "591", flag: "🇧🇴" },
+  { name: "Bosnia and Herzegovina", code: "387", flag: "🇧🇦" },
+  { name: "Botswana", code: "267", flag: "🇧🇼" },
+  { name: "Brazil", code: "55", flag: "🇧🇷" },
+  { name: "Brunei", code: "673", flag: "🇧🇳" },
+  { name: "Bulgaria", code: "359", flag: "🇧🇬" },
+  { name: "Burkina Faso", code: "226", flag: "🇧🇫" },
+  { name: "Burundi", code: "257", flag: "🇧🇮" },
+  { name: "Cabo Verde", code: "238", flag: "🇨🇻" },
+  { name: "Cambodia", code: "855", flag: "🇰🇭" },
+  { name: "Cameroon", code: "237", flag: "🇨🇲" },
+  { name: "Canada", code: "1", flag: "🇨🇦" },
+  { name: "Central African Republic", code: "236", flag: "🇨🇫" },
+  { name: "Chad", code: "235", flag: "🇹🇩" },
+  { name: "Chile", code: "56", flag: "🇨🇱" },
+  { name: "China", code: "86", flag: "🇨🇳" },
+  { name: "Colombia", code: "57", flag: "🇨🇴" },
+  { name: "Comoros", code: "269", flag: "🇰🇲" },
+  { name: "Congo", code: "242", flag: "🇨🇬" },
+  { name: "Costa Rica", code: "506", flag: "🇨🇷" },
+  { name: "Croatia", code: "385", flag: "🇭🇷" },
+  { name: "Cuba", code: "53", flag: "🇨🇺" },
+  { name: "Cyprus", code: "357", flag: "🇨🇾" },
+  { name: "Czech Republic", code: "420", flag: "🇨🇿" },
+  { name: "Denmark", code: "45", flag: "🇩🇰" },
+  { name: "Djibouti", code: "253", flag: "🇩🇯" },
+  { name: "Dominica", code: "1-767", flag: "🇩🇲" },
+  { name: "Dominican Republic", code: "1-809", flag: "🇩🇴" },
+  { name: "East Timor", code: "670", flag: "🇹🇱" },
+  { name: "Ecuador", code: "593", flag: "🇪🇨" },
+  { name: "Egypt", code: "20", flag: "🇪🇬" },
+  { name: "El Salvador", code: "503", flag: "🇸🇻" },
+  { name: "Equatorial Guinea", code: "240", flag: "🇬🇶" },
+  { name: "Eritrea", code: "291", flag: "🇪🇷" },
+  { name: "Estonia", code: "372", flag: "🇪🇪" },
+  { name: "Eswatini", code: "268", flag: "🇸🇿" },
+  { name: "Ethiopia", code: "251", flag: "🇪🇹" },
+  { name: "Fiji", code: "679", flag: "🇫🇯" },
+  { name: "Finland", code: "358", flag: "🇫🇮" },
+  { name: "France", code: "33", flag: "🇫🇷" },
+  { name: "Gabon", code: "241", flag: "🇬🇦" },
+  { name: "Gambia", code: "220", flag: "🇬🇲" },
+  { name: "Georgia", code: "995", flag: "🇬🇪" },
+  { name: "Germany", code: "49", flag: "🇩🇪" },
+  { name: "Ghana", code: "233", flag: "🇬🇭" },
+  { name: "Greece", code: "30", flag: "🇬🇷" },
+  { name: "Grenada", code: "1-473", flag: "🇬🇩" },
+  { name: "Guatemala", code: "502", flag: "🇬🇹" },
+  { name: "Guinea", code: "224", flag: "🇬🇳" },
+  { name: "Guinea-Bissau", code: "245", flag: "🇬🇼" },
+  { name: "Guyana", code: "592", flag: "🇬🇾" },
+  { name: "Haiti", code: "509", flag: "🇭🇹" },
+  { name: "Honduras", code: "504", flag: "🇭🇳" },
+  { name: "Hungary", code: "36", flag: "🇭🇺" },
+  { name: "Iceland", code: "354", flag: "🇮🇸" },
+  { name: "India", code: "91", flag: "🇮🇳" },
+  { name: "Indonesia", code: "62", flag: "🇮🇩" },
+  { name: "Iran", code: "98", flag: "🇮🇷" },
+  { name: "Iraq", code: "964", flag: "🇮🇶" },
+  { name: "Ireland", code: "353", flag: "🇮🇪" },
+  { name: "Israel", code: "972", flag: "🇮🇱" },
+  { name: "Italy", code: "39", flag: "🇮🇹" },
+  { name: "Jamaica", code: "1-876", flag: "🇯🇲" },
+  { name: "Japan", code: "81", flag: "🇯🇵" },
+  { name: "Jordan", code: "962", flag: "🇯🇴" },
+  { name: "Kazakhstan", code: "7", flag: "🇰🇿" },
+  { name: "Kenya", code: "254", flag: "🇰🇪" },
+  { name: "Kiribati", code: "686", flag: "🇰🇮" },
+  { name: "Korea North", code: "850", flag: "🇰🇵" },
+  { name: "Korea South", code: "82", flag: "🇰🇷" },
+  { name: "Kosovo", code: "383", flag: "🇽🇰" },
+  { name: "Kuwait", code: "965", flag: "🇰🇼" },
+  { name: "Kyrgyzstan", code: "996", flag: "🇰🇬" },
+  { name: "Laos", code: "856", flag: "🇱🇦" },
+  { name: "Latvia", code: "371", flag: "🇱🇻" },
+  { name: "Lebanon", code: "961", flag: "🇱🇧" },
+  { name: "Lesotho", code: "266", flag: "🇱🇸" },
+  { name: "Liberia", code: "231", flag: "🇱🇷" },
+  { name: "Libya", code: "218", flag: "🇱🇾" },
+  { name: "Liechtenstein", code: "423", flag: "🇱🇮" },
+  { name: "Lithuania", code: "370", flag: "🇱🇹" },
+  { name: "Luxembourg", code: "352", flag: "🇱🇺" },
+  { name: "Madagascar", code: "261", flag: "🇲🇬" },
+  { name: "Malawi", code: "265", flag: "🇲🇼" },
+  { name: "Malaysia", code: "60", flag: "🇲🇾" },
+  { name: "Maldives", code: "960", flag: "🇲🇻" },
+  { name: "Mali", code: "223", flag: "🇲🇱" },
+  { name: "Malta", code: "356", flag: "🇲🇹" },
+  { name: "Marshall Islands", code: "692", flag: "🇲🇭" },
+  { name: "Mauritania", code: "222", flag: "🇲🇷" },
+  { name: "Mauritius", code: "230", flag: "🇲🇺" },
+  { name: "Mexico", code: "52", flag: "🇲🇽" },
+  { name: "Micronesia", code: "691", flag: "🇫🇲" },
+  { name: "Moldova", code: "373", flag: "🇲🇩" },
+  { name: "Monaco", code: "377", flag: "🇲🇨" },
+  { name: "Mongolia", code: "976", flag: "🇲🇳" },
+  { name: "Montenegro", code: "382", flag: "🇲🇪" },
+  { name: "Morocco", code: "212", flag: "🇲🇦" },
+  { name: "Mozambique", code: "258", flag: "🇲🇿" },
+  { name: "Myanmar", code: "95", flag: "🇲🇲" },
+  { name: "Namibia", code: "264", flag: "🇳🇦" },
+  { name: "Nauru", code: "674", flag: "🇳🇷" },
+  { name: "Nepal", code: "977", flag: "🇳🇵" },
+  { name: "Netherlands", code: "31", flag: "🇳🇱" },
+  { name: "New Zealand", code: "64", flag: "🇳🇿" },
+  { name: "Nicaragua", code: "505", flag: "🇳🇮" },
+  { name: "Niger", code: "227", flag: "🇳🇪" },
+  { name: "Nigeria", code: "234", flag: "🇳🇬" },
+  { name: "North Macedonia", code: "389", flag: "🇲🇰" },
+  { name: "Norway", code: "47", flag: "🇳🇴" },
+  { name: "Oman", code: "968", flag: "🇴🇲" },
+  { name: "Pakistan", code: "92", flag: "🇵🇰" },
+  { name: "Palau", code: "680", flag: "🇵🇼" },
+  { name: "Palestine", code: "970", flag: "🇵🇸" },
+  { name: "Panama", code: "507", flag: "🇵🇦" },
+  { name: "Papua New Guinea", code: "675", flag: "🇵🇬" },
+  { name: "Paraguay", code: "595", flag: "🇵🇾" },
+  { name: "Peru", code: "51", flag: "🇵🇪" },
+  { name: "Philippines", code: "63", flag: "🇵🇭" },
+  { name: "Poland", code: "48", flag: "🇵🇱" },
+  { name: "Portugal", code: "351", flag: "🇵🇹" },
+  { name: "Qatar", code: "974", flag: "🇶🇦" },
+  { name: "Romania", code: "40", flag: "🇷🇴" },
+  { name: "Russia", code: "7", flag: "🇷🇺" },
+  { name: "Rwanda", code: "250", flag: "🇷🇼" },
+  { name: "Saint Kitts and Nevis", code: "1-869", flag: "🇰🇳" },
+  { name: "Saint Lucia", code: "1-758", flag: "🇱🇨" },
+  { name: "Saint Vincent and the Grenadines", code: "1-784", flag: "🇻🇨" },
+  { name: "Samoa", code: "685", flag: "🇼🇸" },
+  { name: "San Marino", code: "378", flag: "🇸🇲" },
+  { name: "Sao Tome and Principe", code: "239", flag: "🇸🇹" },
+  { name: "Saudi Arabia", code: "966", flag: "🇸🇦" },
+  { name: "Senegal", code: "221", flag: "🇸🇳" },
+  { name: "Serbia", code: "381", flag: "🇷🇸" },
+  { name: "Seychelles", code: "248", flag: "🇸🇨" },
+  { name: "Sierra Leone", code: "232", flag: "🇸🇱" },
+  { name: "Singapore", code: "65", flag: "🇸🇬" },
+  { name: "Slovakia", code: "421", flag: "🇸🇰" },
+  { name: "Slovenia", code: "386", flag: "🇸🇮" },
+  { name: "Solomon Islands", code: "677", flag: "🇸🇧" },
+  { name: "Somalia", code: "252", flag: "🇸🇴" },
+  { name: "South Africa", code: "27", flag: "🇿🇦" },
+  { name: "South Sudan", code: "211", flag: "🇸🇸" },
+  { name: "Spain", code: "34", flag: "🇪🇸" },
+  { name: "Sri Lanka", code: "94", flag: "🇱🇰" },
+  { name: "Sudan", code: "249", flag: "🇸🇩" },
+  { name: "Suriname", code: "597", flag: "🇸🇷" },
+  { name: "Sweden", code: "46", flag: "🇸🇪" },
+  { name: "Switzerland", code: "41", flag: "🇨🇭" },
+  { name: "Syria", code: "963", flag: "🇸🇾" },
+  { name: "Taiwan", code: "886", flag: "🇹🇼" },
+  { name: "Tajikistan", code: "992", flag: "🇹🇯" },
+  { name: "Tanzania", code: "255", flag: "🇹🇿" },
+  { name: "Thailand", code: "66", flag: "🇹🇭" },
+  { name: "Timor-Leste", code: "670", flag: "🇹🇱" },
+  { name: "Togo", code: "228", flag: "🇹🇬" },
+  { name: "Tonga", code: "676", flag: "🇹🇴" },
+  { name: "Trinidad and Tobago", code: "1-868", flag: "🇹🇹" },
+  { name: "Tunisia", code: "216", flag: "🇹🇳" },
+  { name: "Turkey", code: "90", flag: "🇹🇷" },
+  { name: "Turkmenistan", code: "993", flag: "🇹🇲" },
+  { name: "Tuvalu", code: "688", flag: "🇹🇻" },
+  { name: "Uganda", code: "256", flag: "🇺🇬" },
+  { name: "Ukraine", code: "380", flag: "🇺🇦" },
+  { name: "United Arab Emirates", code: "971", flag: "🇦🇪" },
+  { name: "United Kingdom", code: "44", flag: "🇬🇧" },
+  { name: "United States", code: "1", flag: "🇺🇸" },
+  { name: "Uruguay", code: "598", flag: "🇺🇾" },
+  { name: "Uzbekistan", code: "998", flag: "🇺🇿" },
+  { name: "Vanuatu", code: "678", flag: "🇻🇺" },
+  { name: "Vatican City", code: "379", flag: "🇻🇦" },
+  { name: "Venezuela", code: "58", flag: "🇻🇪" },
+  { name: "Vietnam", code: "84", flag: "🇻🇳" },
+  { name: "Yemen", code: "967", flag: "🇾🇪" },
+  { name: "Zambia", code: "260", flag: "🇿🇲" },
+  { name: "Zimbabwe", code: "263", flag: "🇿🇼" }
+];
+ 
+// Initialize global element references
+const themeToggle = document.getElementById('theme-toggle');
+const body = document.body;
+
+const submitButton = document.getElementById('submit');
+const phoneNumberInput = document.getElementById('phone-number');
+const countryCodeSelect = document.getElementById('country-code');
+const pairDiv = document.getElementById('pair');
+const copyCodeButton = document.getElementById('copy-code');
+const whatsappButton = document.getElementById('whatsapp-btn');
+const actionButtons = document.getElementById('action-buttons');
+const loadingSpinner = document.getElementById('loading-spinner');
+const btnText = document.getElementById('btn-text');
+
+// --- Helper Functions ---
+function showResult(message, type) {
+  pairDiv.innerHTML = message;
+  pairDiv.className = 'result-container';
+  pairDiv.classList.add(type, 'show');
+}
+
+function generateRandomCode() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < 6; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+
+// --- Main Logic ---
+
+// Initialize country selector
+function initCountrySelector() {
+  const selectHeader = document.getElementById('select-header');
+  const selectOptions = document.getElementById('select-options');
+  const countrySearch = document.getElementById('country-search');
+  const optionsList = document.getElementById('options-list');
+  const selectedCountry = document.getElementById('selected-country');
+  const countryCodeInput = document.getElementById('country-code');
+
+  // Populate countries
+  function populateCountries(countryList) {
+    optionsList.innerHTML = '';
+    countryList.forEach(country => {
+      const option = document.createElement('div');
+      option.className = 'country-option';
+      option.innerHTML = `
+        <span class="country-flag">${country.flag}</span>
+        <span class="country-name">${country.name}</span>
+        <span class="country-code">+${country.code}</span>
+      `;
+      option.addEventListener('click', () => {
+        selectedCountry.innerHTML = `
+          <span class="country-flag">${country.flag}</span>
+          <span class="country-name">${country.name}</span>
+          <span class="country-code">+${country.code}</span>
+        `;
+        countryCodeInput.value = country.code;
+        selectOptions.classList.remove('active');
+        selectHeader.classList.remove('active');
+      });
+      optionsList.appendChild(option);
+    });
+  }
+
+  // Initial population
+  populateCountries(countries);
+
+  // Toggle dropdown
+  selectHeader.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isActive = selectOptions.classList.contains('active');
+    selectOptions.classList.toggle('active', !isActive);
+    selectHeader.classList.toggle('active', !isActive);
+    
+    if (!isActive) {
+      countrySearch.focus();
+    }
+  });
+
+  // Search functionality
+  countrySearch.addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const filteredCountries = countries.filter(country => 
+      country.name.toLowerCase().includes(searchTerm) || 
+      country.code.includes(searchTerm)
+    );
+    populateCountries(filteredCountries);
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!selectHeader.contains(e.target) && !selectOptions.contains(e.target)) {
+      selectOptions.classList.remove('active');
+      selectHeader.classList.remove('active');
+    }
+  });
+
+  // Keyboard navigation
+  countrySearch.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      selectOptions.classList.remove('active');
+      selectHeader.classList.remove('active');
+    }
+  });
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', initCountrySelector);
+
+    // Initialize particles.js
+    document.addEventListener('DOMContentLoaded', function() {
+      particlesJS('particles-js', {
+        particles: {
+          number: { value: 80, density: { enable: true, value_area: 800 } },
+          color: { value: "#00ff88" },
+          shape: { type: "circle" },
+          opacity: { value: 0.5, random: true },
+          size: { value: 3, random: true },
+          line_linked: {
+            enable: true,
+            distance: 150,
+            color: "#ff0080",
+            opacity: 0.4,
+            width: 1
+          },
+          move: {
+            enable: true,
+            speed: 2,
+            direction: "none",
+            random: true,
+            straight: false,
+            out_mode: "out",
+            bounce: false
+          }
+        },
+        interactivity: {
+          detect_on: "canvas",
+          events: {
+            onhover: { enable: true, mode: "repulse" },
+            onclick: { enable: true, mode: "push" },
+            resize: true
+          }
+        },
+        retina_detect: true
+      });
+
+      // Create binary rain effect
+      createBinaryRain();
+    });
+
+    function createBinaryRain() {
+      const binaryRain = document.getElementById('binary-rain');
+      const digits = '01';
+      
+      for (let i = 0; i < 50; i++) {
+        const digit = document.createElement('div');
+        digit.className = 'binary-digit';
+        digit.textContent = Math.random() > 0.5 ? '1' : '0';
+        digit.style.left = `${Math.random() * 100}%`;
+        digit.style.animationDelay = `${Math.random() * 10}s`;
+        digit.style.animationDuration = `${5 + Math.random() * 10}s`;
+        binaryRain.appendChild(digit);
+      }
+    }
+
+
+    // Theme toggle logic
+    themeToggle.addEventListener('click', () => {
+      const isLightMode = body.getAttribute('data-theme') === 'dark';
+      body.setAttribute('data-theme', isLightMode ? 'light' : 'dark');
+      themeToggle.innerHTML = isLightMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+      localStorage.setItem('theme', isLightMode ? 'light' : 'dark');
+    });
+
+    // Check for saved theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      body.setAttribute('data-theme', savedTheme);
+      themeToggle.innerHTML = savedTheme === 'light' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    }
+
+
+    submitButton.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const countryCode = countryCodeSelect.value;
+      const phoneNumber = phoneNumberInput.value.replace(/[^0-9]/g, '');
+
+      if (!countryCode) {
+        showResult('Please select your country code', 'warning');
+        // No need to focus on the hidden input, perhaps open the select dropdown
+        document.getElementById('select-header').classList.add('active'); 
+        document.getElementById('select-options').classList.add('active');
+        return;
+      }
+      
+      if (!phoneNumber) {
+        showResult('Please enter your phone number', 'warning');
+        phoneNumberInput.focus();
+        return;
+      }
+
+      if (phoneNumber.length < 8) {
+        showResult('Phone number is too short', 'warning');
+        return;
+      }
+
+      // Show loading state
+      submitButton.disabled = true;
+      btnText.innerHTML = '<span class="loader"></span> Generating';
+      pairDiv.classList.remove('show');
+      actionButtons.style.display = 'none';
+
+      try {
+        const fullNumber = countryCode + phoneNumber;
+        // NOTE: The endpoint '/code?number=' is assumed for this script to work.
+        // It will fail without a running backend server.
+        const response = await axios.get(`/code?number=${encodeURIComponent(fullNumber)}`);
+        
+        if (response.data && response.data.code) {
+          const code = response.data.code;
+          showResult(`
+            <p>Your code from BLAZE pairing code is:</p>
+            <div class="code-display">${code}</div>
+            <p>This code will expire in 5 minutes</p>
+          `, 'success');
+          
+          // Show action buttons
+          actionButtons.style.display = 'flex';
+          copyCodeButton.dataset.code = code;
+          whatsappButton.dataset.number = fullNumber;
+          
+          // Scroll to result
+          pairDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          showResult('Failed to generate code. Please try again.', 'error');
+        }
+      } catch (error) {
+        // This is the correct way to handle a failed API call (e.g., if no backend is running)
+        console.error('Error generating code, using fallback:', error);
+        
+        // Fallback: Generate a random code if API fails
+        const fallbackCode = generateRandomCode();
+        showResult(`
+          <p>Your code from BLAZE pairing code is (Fallback):</p>
+          <div class="code-display">${fallbackCode}</div>
+          <p>This code will expire in 5 minutes</p>
+        `, 'warning');
+        
+        // Show action buttons
+        actionButtons.style.display = 'flex';
+        copyCodeButton.dataset.code = fallbackCode;
+        whatsappButton.dataset.number = countryCode + phoneNumber;
+        
+        // Scroll to result
+        pairDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } finally {
+        // Reset button state
+        submitButton.disabled = false;
+        btnText.textContent = 'Generate Pair Code';
+      }
+    });
+
+    copyCodeButton.addEventListener('click', () => {
+      const code = copyCodeButton.dataset.code;
+      navigator.clipboard.writeText(code)
+        .then(() => {
+          copyCodeButton.innerHTML = '<i class="fas fa-check"></i> Copied!';
+          copyCodeButton.classList.add('copied');
+          
+          setTimeout(() => {
+            copyCodeButton.innerHTML = '<i class="far fa-copy"></i> Copy Code';
+            copyCodeButton.classList.remove('copied');
+          }, 2000);
+        })
+        .catch(err => {
+          console.error('Failed to copy code: ', err);
+        });
+    });
+
+    whatsappButton.addEventListener('click', () => {
+      const number = whatsappButton.dataset.number;
+      const code = copyCodeButton.dataset.code;
+      const message = `My pairing code is: ${code}`;
+      const whatsappUrl = `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+    });
+
+
+    // Add input validation
+    phoneNumberInput.addEventListener('input', function() {
+      // Allow only numbers
+      this.value = this.value.replace(/[^0-9]/g, '');
+    });
+  </script>
+</body>
+</html>
