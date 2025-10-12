@@ -11,6 +11,6 @@
 `Note: Its Developed By A Student Of Programming Languages So If You Finds Any Errors , Please Submit A Pull Request With Complete Details 💝`
 
 
-| [![Qasim Ali](https://github.com/lovertoxic.png?size=100)](https://github.com/lovertoxic) |
+| [![Qasim Ali](https://github.com/silatrix2.png?size=100)](https://github.com/silatrix2) |
 | --- |
-Sir-T20
+Sir-𝕊𝕀𝕃𝔸
