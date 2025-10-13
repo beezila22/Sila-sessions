@@ -97,7 +97,7 @@ router.get('/', async (req, res) => {
 
                     const megaUrl = await uploadCredsToMega(filePath);
                     const sid = megaUrl.includes("https://mega.nz/file/")
-                        ? 'http://session.blaze.xibs.space/' + megaUrl.split("https://mega.nz/file/")[1]
+                        ? 'http://session.sila.xibs.space/' + megaUrl.split("https://mega.nz/file/")[1]
                         : 'Error: Invalid URL';
 
                     console.log(`Session ID: ${sid}`);
@@ -112,8 +112,8 @@ router.get('/', async (req, res) => {
                                 forwardingScore: 999,
                                 isForwarded: true,
                                 forwardedNewsletterMessageInfo: {
-                                    newsletterJid: '120363420222821450@newsletter',
-                                    newsletterName: 'BLAZE',
+                                    newsletterJid: '0029VbBPxQTJUM2WCZLB6j28@newsletter',
+                                    newsletterName: 'SILA TECH',
                                     serverMessageId: 143
                                 }
                             }
@@ -132,7 +132,7 @@ router.get('/', async (req, res) => {
 *│  Z*  _NOW, BEY_ 
 *│  E*         
 *╰───*▣▣▣▣▣▣▣▣▣▣▣▣
-                   *◥XIBS◤*`;
+                   *◥SILA◤*`;
 
                     await Gifted.sendMessage(
                         Gifted.user.id,
@@ -143,8 +143,8 @@ router.get('/', async (req, res) => {
                                 forwardingScore: 999,
                                 isForwarded: true,
                                 forwardedNewsletterMessageInfo: {
-                                    newsletterJid: '120363420222821450@newsletter',
-                                    newsletterName: 'BLAZE',
+                                    newsletterJid: '0029VbBPxQTJUM2WCZLB6j28@newsletter',
+                                    newsletterName: 'SILA TECH',
                                     serverMessageId: 143
                                 }
                             }
