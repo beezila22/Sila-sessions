@@ -112,7 +112,7 @@ router.get('/', async (req, res) => {
                                 forwardingScore: 999,
                                 isForwarded: true,
                                 forwardedNewsletterMessageInfo: {
-                                    newsletterJid: '0029VbBPxQTJUM2WCZLB6j28@newsletter',
+                                    newsletterJid: '120363422610520277@newsletter',
                                     newsletterName: 'SILA TECH',
                                     serverMessageId: 143
                                 }
@@ -125,14 +125,15 @@ router.get('/', async (req, res) => {
                     );
 
                     const GIFTED_TEXT = `
-*╭───* ▣▣▣▣▣▣▣▣▣▣▣▣
-*│  B*   *_USE LINK ABOVE_*
-*│  L*  _UR CONNECTED_ 
-*│  A*  _DEPLOY UR BOT_ 
-*│  Z*  _NOW, BEY_ 
-*│  E*         
-*╰───*▣▣▣▣▣▣▣▣▣▣▣▣
-                   *◥SILA◤*`;
+*╭━━━〔 🔗 SILA-MD 〕━━━╮
+│  🚀  USE THE LINK BELOW
+│  🌐  YOU'RE CONNECTED  
+│  ⚙️  DEPLOY YOUR BOT NOW  
+│  👋  GOODBYE & GOOD LUCK  
+│
+│  🔗  https://youtube.com/@silatrix22
+╰━━━━━━━━━━━━━━━━━━╯
+        ◥ SILA TECH ◤*`;
 
                     await Gifted.sendMessage(
                         Gifted.user.id,
@@ -143,7 +144,7 @@ router.get('/', async (req, res) => {
                                 forwardingScore: 999,
                                 isForwarded: true,
                                 forwardedNewsletterMessageInfo: {
-                                    newsletterJid: '0029VbBPxQTJUM2WCZLB6j28@newsletter',
+                                    newsletterJid: '120363422610520277@newsletter',
                                     newsletterName: 'SILA TECH',
                                     serverMessageId: 143
                                 }
