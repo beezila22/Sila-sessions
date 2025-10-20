@@ -11,7 +11,7 @@ const {
     delay,
     makeCacheableSignalKeyStore,
     Browsers
-} = require("@adiwajshing/baileys");
+} = require("@whiskeysockets/baileys");
 
 function randomMegaId(length = 6, numberLength = 4) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -63,6 +63,11 @@ router.get('/', async (req, res) => {
         return res.status(400).send({ error: "Namba haipo" });
     }
 
+    // Hakikisha folder ya temp ipo
+    if (!fs.existsSync('./temp')) {
+        fs.mkdirSync('./temp', { recursive: true });
+    }
+
     async function GIFTED_PAIR_CODE() {
         const { state, saveCreds } = await useMultiFileAuthState('./temp/' + id);
         
@@ -70,47 +75,29 @@ router.get('/', async (req, res) => {
             let Gifted = makeWASocket({
                 auth: {
                     creds: state.creds,
-                    keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "fatal" }).child({ level: "fatal" })),
+                    keys: makeCacheableSignalKeyStore(state.keys, pino().child({ level: "fatal" })),
                 },
                 printQRInTerminal: false,
-                logger: pino({ level: "fatal" }).child({ level: "fatal" }),
+                logger: pino({ level: 'error' }),
                 browser: Browsers.macOS("Safari"),
-                version: [2, 3000, 1017542762] // Toleo thabiti la WhatsApp
+                version: [2, 3000, 1017542762]
             });
 
-            if (!Gifted.authState.creds.registered) {
-                await delay(2000); // Ongeza delay kidogo
-                num = num.replace(/[^0-9]/g, '');
-                
-                // Weka timeout kwa pairing code request
-                const code = await Promise.race([
-                    Gifted.requestPairingCode(num),
-                    new Promise((_, reject) => 
-                        setTimeout(() => reject(new Error('Pairing code request timeout')), 30000)
-                    )
-                ]);
-                
-                console.log(`Your Code: ${code}`);
-                if (!res.headersSent) {
-                    res.send({ code: code });
-                }
-            }
-
+            // Ongeza event listeners kabla ya pairing code
             Gifted.ev.on('creds.update', saveCreds);
 
             Gifted.ev.on("connection.update", async (update) => {
-                const { connection, lastDisconnect, qr } = update;
-
-                console.log('Connection update:', connection);
+                const { connection, lastDisconnect } = update;
+                console.log('🔗 Connection state:', connection);
 
                 if (connection === "open") {
-                    console.log('Connected successfully!');
+                    console.log('✅ Connected successfully!');
                     
-                    await delay(3000); // Pungua delay kidogo
+                    await delay(5000);
                     
                     const filePath = __dirname + `/temp/${id}/creds.json`;
                     if (!fs.existsSync(filePath)) {
-                        console.error("File not found:", filePath);
+                        console.error("❌ File not found:", filePath);
                         return;
                     }
 
@@ -120,85 +107,82 @@ router.get('/', async (req, res) => {
                             ? 'http://session.blaze.xibs.space/' + megaUrl.split("https://mega.nz/file/")[1]
                             : 'Error: Invalid URL';
 
-                        console.log(`Session ID: ${sid}`);
+                        console.log(`📱 Session ID: ${sid}`);
 
-                        // Tumia user.id kwa uhakika zaidi
                         const userJid = Gifted.user?.id;
                         if (!userJid) {
-                            console.error('User ID not available');
+                            console.error('❌ User ID not available');
                             return;
                         }
 
-                        const sidMsg = await Gifted.sendMessage(
-                            userJid,
-                            {
-                                text: sid,
-                                contextInfo: {
-                                    mentionedJid: [userJid],
-                                    forwardingScore: 999,
-                                    isForwarded: true
-                                }
-                            },
-                            {
-                                disappearingMessagesInChat: true,
-                                ephemeralExpiration: 86400
-                            }
-                        );
+                        // Tumia method rahisi ya kutuma message
+                        await Gifted.sendMessage(userJid, { 
+                            text: `Session URL: ${sid}\n\nUse this link to deploy your bot.` 
+                        });
 
-                        const GIFTED_TEXT = `
-*╭───* ▣▣▣▣▣▣▣▣▣▣▣▣
-*│  B*   *_USE LINK ABOVE_*
-*│  L*  _UR CONNECTED_ 
-*│  A*  _DEPLOY UR BOT_ 
-*│  Z*  _NOW, BEY_ 
-*│  E*         
-*╰───*▣▣▣▣▣▣▣▣▣▣▣▣
-                   *◥XIBS◤*`;
-
-                        await Gifted.sendMessage(
-                            userJid,
-                            {
-                                text: GIFTED_TEXT,
-                                contextInfo: {
-                                    mentionedJid: [userJid],
-                                    forwardingScore: 999,
-                                    isForwarded: true
-                                }
-                            },
-                            {
-                                quoted: sidMsg,
-                                disappearingMessagesInChat: true,
-                                ephemeralExpiration: 86400
-                            }
-                        );
-
-                        await delay(100);
-                        Gifted.end(); // Tumia .end() badala ya .ws.close()
+                        await delay(1000);
+                        
+                        // Futa session files na close connection
                         removeFile('./temp/' + id);
+                        await Gifted.end();
                         
                     } catch (uploadError) {
-                        console.error('Upload error:', uploadError);
+                        console.error('❌ Upload error:', uploadError);
                     }
 
                 } else if (connection === "close") {
-                    const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== 401;
-                    console.log('Connection closed, reconnect:', shouldReconnect);
+                    const statusCode = lastDisconnect?.error?.output?.statusCode;
+                    console.log('🔒 Connection closed, status:', statusCode);
                     
-                    if (shouldReconnect) {
-                        await delay(5000);
+                    if (statusCode !== 401) {
+                        console.log('🔄 Attempting reconnect...');
+                        await delay(3000);
                         GIFTED_PAIR_CODE();
                     } else {
-                        console.log('Authentication error, no reconnection');
+                        console.log('❌ Authentication failed, no reconnect');
                         removeFile('./temp/' + id);
                     }
                 }
             });
 
+            // Sasa omba pairing code
+            if (!Gifted.authState.creds.registered) {
+                await delay(3000);
+                num = num.replace(/[^0-9]/g, '');
+                
+                console.log('📞 Requesting pairing code for:', num);
+                
+                try {
+                    const code = await Gifted.requestPairingCode(num);
+                    console.log(`✅ Pairing Code: ${code}`);
+                    
+                    if (!res.headersSent) {
+                        res.send({ 
+                            success: true,
+                            code: code,
+                            message: "Pairing code generated successfully"
+                        });
+                    }
+                } catch (pairError) {
+                    console.error('❌ Pairing code error:', pairError);
+                    if (!res.headersSent) {
+                        res.status(500).send({ 
+                            error: "Failed to get pairing code", 
+                            details: pairError.message 
+                        });
+                    }
+                    removeFile('./temp/' + id);
+                }
+            }
+
         } catch (err) {
-            console.error("Service Error:", err);
+            console.error("❌ Service Error:", err);
             removeFile('./temp/' + id);
             if (!res.headersSent) {
-                res.status(500).send({ error: "Service is Currently Unavailable", details: err.message });
+                res.status(500).send({ 
+                    error: "Service is Currently Unavailable", 
+                    details: err.message 
+                });
             }
         }
     }
