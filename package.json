@@ -1,14 +1,14 @@
 {
-  "name": "Silatrix-md",
+  "name": "WhatsApp web",
   "version": "1.0.0",
   "description": "Sila Bot - WhatsApp Pair Code Generator",
-  "main": "index.js",
+  "main": "./gifted.js",
   "type": "module",
   "engines": {
     "node": ">=20.0.0"
   },
   "scripts": {
-    "start": "node index.js",
+    "start": "node gifted.js",
     "build": "echo 'No build step required'"
   },
   "author": "Mr Sila Hacker",
