@@ -1,4 +1,3 @@
-
 const { giftedid } = require('./id');
 const express = require('express');
 const fs = require('fs');
@@ -7,12 +6,12 @@ const pino = require("pino");
 const { Storage, File } = require("megajs");
 
 const {
-    default: Gifted_Tech,
+    default: makeWASocket,
     useMultiFileAuthState,
     delay,
     makeCacheableSignalKeyStore,
     Browsers
-} = require("@whiskeysockets/baileys");
+} = require("@adiwajshing/baileys");
 
 function randomMegaId(length = 6, numberLength = 4) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -59,72 +58,94 @@ router.get('/', async (req, res) => {
     const id = giftedid();
     let num = req.query.number;
 
+    // Hakikisha namba iko sahihi
+    if (!num) {
+        return res.status(400).send({ error: "Namba haipo" });
+    }
+
     async function GIFTED_PAIR_CODE() {
         const { state, saveCreds } = await useMultiFileAuthState('./temp/' + id);
+        
         try {
-            let Gifted = Gifted_Tech({
+            let Gifted = makeWASocket({
                 auth: {
                     creds: state.creds,
                     keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "fatal" }).child({ level: "fatal" })),
                 },
                 printQRInTerminal: false,
                 logger: pino({ level: "fatal" }).child({ level: "fatal" }),
-                browser: Browsers.macOS("Safari")
+                browser: Browsers.macOS("Safari"),
+                version: [2, 3000, 1017542762] // Toleo thabiti la WhatsApp
             });
 
             if (!Gifted.authState.creds.registered) {
-                await delay(1500);
+                await delay(2000); // Ongeza delay kidogo
                 num = num.replace(/[^0-9]/g, '');
-                const code = await Gifted.requestPairingCode(num);
+                
+                // Weka timeout kwa pairing code request
+                const code = await Promise.race([
+                    Gifted.requestPairingCode(num),
+                    new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('Pairing code request timeout')), 30000)
+                    )
+                ]);
+                
                 console.log(`Your Code: ${code}`);
                 if (!res.headersSent) {
-                    await res.send({ code });
+                    res.send({ code: code });
                 }
             }
 
             Gifted.ev.on('creds.update', saveCreds);
 
-            Gifted.ev.on("connection.update", async (s) => {
-                const { connection, lastDisconnect } = s;
+            Gifted.ev.on("connection.update", async (update) => {
+                const { connection, lastDisconnect, qr } = update;
 
-                if (connection == "open") {
-                    await delay(50000);
+                console.log('Connection update:', connection);
+
+                if (connection === "open") {
+                    console.log('Connected successfully!');
+                    
+                    await delay(3000); // Pungua delay kidogo
+                    
                     const filePath = __dirname + `/temp/${id}/creds.json`;
                     if (!fs.existsSync(filePath)) {
                         console.error("File not found:", filePath);
                         return;
                     }
 
-                    const megaUrl = await uploadCredsToMega(filePath);
-                    const sid = megaUrl.includes("https://mega.nz/file/")
-                        ? 'http://session.blaze.xibs.space/' + megaUrl.split("https://mega.nz/file/")[1]
-                        : 'Error: Invalid URL';
+                    try {
+                        const megaUrl = await uploadCredsToMega(filePath);
+                        const sid = megaUrl.includes("https://mega.nz/file/")
+                            ? 'http://session.blaze.xibs.space/' + megaUrl.split("https://mega.nz/file/")[1]
+                            : 'Error: Invalid URL';
 
-                    console.log(`Session ID: ${sid}`);
+                        console.log(`Session ID: ${sid}`);
 
-                    
-                    const sidMsg = await Gifted.sendMessage(
-                        Gifted.user.id,
-                        {
-                            text: sid,
-                            contextInfo: {
-                                mentionedJid: [Gifted.user.id],
-                                forwardingScore: 999,
-                                isForwarded: true,
-                                forwardedNewsletterMessageInfo: {
-                                    newsletterJid: '120363420222821450@newsletter',
-                                    newsletterName: 'BLAZE',
-                                    serverMessageId: 143
-                                }
-                            }
-                        },
-                        {
-                            disappearingMessagesInChat: true,
-                            ephemeralExpiration: 86400
+                        // Tumia user.id kwa uhakika zaidi
+                        const userJid = Gifted.user?.id;
+                        if (!userJid) {
+                            console.error('User ID not available');
+                            return;
                         }
-                    );
 
-                    const GIFTED_TEXT = `
+                        const sidMsg = await Gifted.sendMessage(
+                            userJid,
+                            {
+                                text: sid,
+                                contextInfo: {
+                                    mentionedJid: [userJid],
+                                    forwardingScore: 999,
+                                    isForwarded: true
+                                }
+                            },
+                            {
+                                disappearingMessagesInChat: true,
+                                ephemeralExpiration: 86400
+                            }
+                        );
+
+                        const GIFTED_TEXT = `
 *╭───* ▣▣▣▣▣▣▣▣▣▣▣▣
 *│  B*   *_USE LINK ABOVE_*
 *│  L*  _UR CONNECTED_ 
@@ -134,51 +155,55 @@ router.get('/', async (req, res) => {
 *╰───*▣▣▣▣▣▣▣▣▣▣▣▣
                    *◥XIBS◤*`;
 
-                    await Gifted.sendMessage(
-                        Gifted.user.id,
-                        {
-                            text: GIFTED_TEXT,
-                            contextInfo: {
-                                mentionedJid: [Gifted.user.id],
-                                forwardingScore: 999,
-                                isForwarded: true,
-                                forwardedNewsletterMessageInfo: {
-                                    newsletterJid: '120363420222821450@newsletter',
-                                    newsletterName: 'BLAZE',
-                                    serverMessageId: 143
+                        await Gifted.sendMessage(
+                            userJid,
+                            {
+                                text: GIFTED_TEXT,
+                                contextInfo: {
+                                    mentionedJid: [userJid],
+                                    forwardingScore: 999,
+                                    isForwarded: true
                                 }
+                            },
+                            {
+                                quoted: sidMsg,
+                                disappearingMessagesInChat: true,
+                                ephemeralExpiration: 86400
                             }
-                        },
-                        {
-                            quoted: sidMsg,
-                            disappearingMessagesInChat: true,
-                            ephemeralExpiration: 86400
-                        }
-                    );
+                        );
 
-                    await delay(100);
-                    await Gifted.ws.close();
-                    return await removeFile('./temp/' + id);
-                } else if (
-                    connection === "close" &&
-                    lastDisconnect &&
-                    lastDisconnect.error &&
-                    lastDisconnect.error.output.statusCode != 401
-                ) {
-                    await delay(10000);
-                    GIFTED_PAIR_CODE();
+                        await delay(100);
+                        Gifted.end(); // Tumia .end() badala ya .ws.close()
+                        removeFile('./temp/' + id);
+                        
+                    } catch (uploadError) {
+                        console.error('Upload error:', uploadError);
+                    }
+
+                } else if (connection === "close") {
+                    const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== 401;
+                    console.log('Connection closed, reconnect:', shouldReconnect);
+                    
+                    if (shouldReconnect) {
+                        await delay(5000);
+                        GIFTED_PAIR_CODE();
+                    } else {
+                        console.log('Authentication error, no reconnection');
+                        removeFile('./temp/' + id);
+                    }
                 }
             });
+
         } catch (err) {
-            console.error("Service Has Been Restarted:", err);
-            await removeFile('./temp/' + id);
+            console.error("Service Error:", err);
+            removeFile('./temp/' + id);
             if (!res.headersSent) {
-                await res.send({ code: "Service is Currently Unavailable" });
+                res.status(500).send({ error: "Service is Currently Unavailable", details: err.message });
             }
         }
     }
 
-    return await GIFTED_PAIR_CODE();
+    await GIFTED_PAIR_CODE();
 });
 
 module.exports = router;
