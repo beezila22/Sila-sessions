@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Sila Bot - WhatsApp Pair Code Generator",
   "main": "./gifted.js",
+  "type": "commonjs",
   "engines": {
     "node": ">=20.0.0"
   },
