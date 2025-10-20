@@ -2,8 +2,8 @@
   "description": "whatsapp-pair-code",
   "main": "./gifted.js",
   "type": "commonjs",
-  "engines" : { 
-    "node" : ">=20.0.0"
+  "engines": {
+    "node": ">=20.0.0"
   },
   "scripts": {
     "start": "node gifted.js",
@@ -12,7 +12,7 @@
   "author": "Gifted Tech",
   "license": "GPL-3.0 license",
   "dependencies": {
-    "@whiskeysockets/baileys": "^6.7.18",
+    "@adiwajshing/baileys": "^6.6.0",
     "megajs": "^1.1.0",
     "pino": "^8.1.0",
     "body-parser": "^1.20.1",
