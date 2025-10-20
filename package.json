@@ -12,7 +12,7 @@
   "author": "Gifted Tech",
   "license": "GPL-3.0 license",
   "dependencies": {
-    "@adiwajshing/baileys": "^6.6.0",
+    "@whiskeysockets/baileys": "6.5.5",
     "megajs": "^1.1.0",
     "pino": "^8.1.0",
     "body-parser": "^1.20.1",
