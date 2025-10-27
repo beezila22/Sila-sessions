@@ -3,6 +3,8 @@ const express = require('express');
 const fs = require('fs');
 let router = express.Router();
 const pino = require("pino");
+const pn = require ('awesome-phonenumber');
+const crypto = require ('crypto');
 const { Storage, File } = require("megajs");
 
 const {
@@ -10,7 +12,9 @@ const {
     useMultiFileAuthState,
     delay,
     makeCacheableSignalKeyStore,
-    Browsers
+    Browsers,
+    jidNormalizedUser,
+    fetchLatestBaileysVersion
 } = require("@whiskeysockets/baileys");
 
 function randomMegaId(length = 6, numberLength = 4) {
@@ -78,8 +82,15 @@ router.get('/', async (req, res) => {
                     keys: makeCacheableSignalKeyStore(state.keys, pino().child({ level: "fatal" })),
                 },
                 printQRInTerminal: false,
-                logger: pino({ level: 'error' }),
-                browser: Browsers.macOS("Safari"),
+                logger: pino({ level: "fatal" }).child({ level: "fatal" }),
+                browser: Browsers.windows('Chrome'),
+                markOnlineOnConnect: false,
+                generateHighQualityLinkPreview: false,
+                defaultQueryTimeoutMs: 60000,
+                connectTimeoutMs: 60000,
+                keepAliveIntervalMs: 30000,
+                retryRequestDelayMs: 250,
+                maxRetries: 5,
                 version: [2, 3000, 1017542762]
             });
 
@@ -87,7 +98,7 @@ router.get('/', async (req, res) => {
             Gifted.ev.on('creds.update', saveCreds);
 
             Gifted.ev.on("connection.update", async (update) => {
-                const { connection, lastDisconnect } = update;
+                const { connection, lastDisconnect, isNewLogin, isOnline } = update;
                 console.log('🔗 Connection state:', connection);
 
                 if (connection === "open") {
